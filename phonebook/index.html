@@ -1,0 +1,358 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Phonebook</title>
+    <meta name="author" content="Me"/>
+    <meta name="Description" content="Phonebook"/>
+    <script src="jcubic-jquery.terminal/js/jquery-1.7.1.min.js"></script>
+    <script src="jcubic-jquery.terminal/js/jquery.mousewheel-min.js"></script>
+    <script src="jcubic-jquery.terminal/js/jquery.terminal-min.js"></script>
+    <link href="jcubic-jquery.terminal/css/jquery.terminal.css" rel="stylesheet"/>
+    <script>
+    jQuery(function($, undefined) {
+		Array.prototype.remove = function(from, to) {
+			var rest = this.slice((to || from) + 1 || this.length);
+			this.length = from < 0 ? this.length + from : from;
+			return this.push.apply(this, rest);
+		};
+		var phonebook = [ //preset data storage
+			{name: 'Tossapon', phones: ['0811323545']},
+			{name: 'Poowanai', phones: ['0835411234', '0823354121']},
+			{name: 'Norasath', phones: ['0850550354']}
+		];
+		
+			
+        $('#main').terminal(function(command, term) {
+			var help = function() {
+				term.echo('i - insert a phone number');
+				term.echo('d - delete a phone number');
+				term.echo('m - modify a phone number');
+				term.echo('s - search');
+				term.echo('x - exist program');
+			}
+			
+			var viewList = function() {
+				term.echo('The list is:');
+				var msg = '';
+				for(i=0; i<phonebook.length; i++) {
+					if( ! phonebook[i])
+						continue;
+					msg += '['+i+'] ' + phonebook[i].name;
+					msg += new Array(9 - phonebook[i].name.length).join(' '); //padding
+					msg += ' - ';
+					if(phonebook[i].phones && phonebook[i].phones[0]) {
+						for(j=0; j < phonebook[i].phones.length; ++j) {
+							if (j>0) {
+								msg+= '               '; //padding
+							}
+							msg += ('' + j + ' ' + phonebook[i].phones[j] + '\n');
+						}
+					}
+				}
+				term.echo(msg);
+			}
+			
+			var insertMember = function() {
+				term.push(function(command) {
+					if (command !== '') {
+						var m = new Member(command);
+						term.echo('hello' + m.name);
+						term.pop();
+					} else {
+						term.pop();
+					}
+				}, {
+					prompt: 'Member name: '
+				});
+			}
+			
+			var promptInsertPhoneNumber = function() {
+				term.push(function(command) {
+					if (command.match(/[0-9]{10}/)) {
+						var newPhoneNumber = command;
+						viewList();
+						promptInsertPersonId(newPhoneNumber);
+					} else {
+						term.error('Error - Invalid phone number');
+						term.pop();
+					}
+				}, {
+					prompt: 'Enter a phone number to be inserted: '
+				});
+			}
+
+			var promptInsertPersonId = function(newPhoneNumber) {
+				term.push(function(command) {
+					if ( ! isNaN(command)) {
+						var personId = command;
+						if(phonebook[personId]) {
+							if(phonebook[personId].phones && phonebook[personId].phones.length === 5) {
+								promptReplacePhoneNumber(personId, newPhoneNumber);	
+							} else {
+								promptAddOrReplacePhoneNumber(personId, newPhoneNumber);						
+							}
+						} else {
+							term.error('Error - Invalid person Id');
+							promptInsertPersonId();
+						}
+					} else if(command === 'n') {
+						promptAddNewPerson(newPhoneNumber);
+					} else {
+						term.error('Error - Please enter PersonId as number.');
+					}
+				}, {
+					prompt: 'Enter the person id to append the phone number or "n" for new person: '
+				});
+			}
+			
+			promptReplacePhoneNumber = function(personId, newPhoneNumber) { //case person already has 5 phone number
+				term.push(function(command) {
+					if ( ! isNaN(command)) {
+						if(phonebook[personId].phones[command]) {
+							phonebook[personId].phones[command] = newPhoneNumber;
+							viewList();
+							term.pop();
+							term.pop();
+							term.pop();
+						} else {
+							term.error('Error - Invalid phone Id');
+						}
+					} else  {
+						term.pop();
+						term.pop();
+						term.pop();
+					}
+				}, {
+					prompt: phonebook[personId].name + ' has 5 phone numbers already, enter replaced number or any key for cancel: '
+				});
+			}
+			
+			var promptAddOrReplacePhoneNumber = function(personId, newPhoneNumber) {
+				term.push(function(command) {
+					if(command === 'n') {
+						phonebook[personId].phones.push(newPhoneNumber);
+						viewList();
+						term.pop();
+						term.pop();
+						term.pop();
+					} else if( ! isNaN(command)) {
+						var phoneId = command;
+						promptConfirmReplcePhoneNumber(personId, newPhoneNumber, phoneId);
+					}
+				}, {
+					prompt: 'Enter replace number or "n" for new phone number: '
+				});
+			}
+			
+			var promptAddNewPerson = function(newPhoneNumber) {
+				term.push(function(command) {
+					var personName = command;
+					if(personName.match(/[a-zA-Z0-9 _-]{1,8}/)) {
+						phonebook.push({name: personName, phones: [newPhoneNumber]});
+						viewList();
+						term.pop();
+						term.pop();
+					} else {
+						term.error('Invalid person name [a-zA-Z0-9 _-] max 8 characters');
+					}
+				}, {
+					prompt: 'Enter the name (8 characters maximun): '
+				});
+			}
+			
+			var promptConfirmReplcePhoneNumber = function(personId, newPhoneNumber, phoneId) {
+				term.push(function(command) {
+					if(command === 'y') {
+						phonebook[personId].phones[phoneId] = newPhoneNumber;
+						viewList();
+						term.pop();
+						term.pop();
+						term.pop();
+						term.pop();
+					} else {
+						term.pop();
+						term.pop();
+						term.pop();
+						term.pop();
+					}
+				}, {
+					prompt: 'Do you want to replace ' + phonebook[personId].name+ ' s contact ' + phonebook[personId].phones[phoneId] + ' with ' + newPhoneNumber + ' (\'y\' for yes, any key to cancel)?: '
+				});
+			}
+			
+			var promptDeletePhoneNumberAndPerson = function() {
+				viewList();
+				term.push(function(command) {
+					var personId = command
+					if( ! isNaN(personId) && phonebook[personId] ) {
+						if (phonebook[personId].phones.length === 1) { //has 1 number
+							promptDeletePerson(personId);
+						} else {
+							promptDeletePhoneNumber(personId);
+						}
+					} else {
+						if(isNaN(personId))
+							term.error('Invalid person Id');
+							
+						term.pop();
+					}
+				}, {
+					prompt: 'Enter the person id to be deleted or any key to cancel: '
+				});
+			}
+			
+			var promptDeletePerson = function(personId) {
+				term.push(function(command) {
+					if (command === 'y') {
+						phonebook.remove(personId);
+						viewList();
+					}
+					term.pop();
+					term.pop();
+				}, {
+					prompt: 'Do you want to delete ' + phonebook[personId].name + '\'s contact as well (\'y\' for yes, any key to cancel)? : '
+				});
+			}
+			
+			var promptDeletePhoneNumber = function(personId) {
+				term.push(function(command) {
+					var phoneId = command;
+					if ( ! isNaN(phoneId) && phonebook[personId].phones[phoneId]) {
+						promptConfirmDeletePhoneNumber(personId, phoneId);
+					} else {
+						term.pop();
+						term.pop();
+					}
+				}, {
+					prompt: 'Enter the phone number id to be deleted: '
+				});
+			}
+			
+			var promptConfirmDeletePhoneNumber = function(personId, phoneId) {
+				term.push(function(command) {
+					if (command === 'y') {
+						phonebook[personId].phones.remove(phoneId);
+						viewList();
+					}
+					term.pop();
+					term.pop();
+					term.pop();
+				}, {
+					prompt: 'Confirm (\'y\' for yes, any key to cancel)? :'
+				});
+			}
+			
+			var promptModifyPhoneNumber = function() {
+				viewList();
+				term.push(function(command) {
+					var personId = command;
+					if ( ! isNaN[personId] && ! phonebook[personId]) {
+						term.error('Error - Person not exists');
+					} else if(phonebook[personId]) {
+						term.push(function(command) {
+							var phoneId = command;
+							if ( ! isNaN[phoneId] && ! phonebook[personId].phones[phoneId]) {
+								term.error('Error -  Phone number not exists');
+							} else if(phonebook[personId].phones[phoneId]) {
+								term.push(function(command) {
+									var newPhoneNumber = command;
+									if (newPhoneNumber.match(/[0-9]{10}/)) {
+										term.push(function(command) {
+											if (command === 'y') {
+												phonebook[personId].phones[phoneId] = newPhoneNumber;
+												viewList();
+											}
+											term.pop();
+											term.pop();
+											term.pop();
+											term.pop();
+										}, {
+											prompt: 'Do you want to modify ' + phonebook[personId].name + '\'s contact from ' +phonebook[personId].phones[phoneId] + ' to ' + newPhoneNumber + ' (\'y\' for yes , any key to cancel)?: '
+										});
+									} else {
+										term.error('Error - Invalid phone number.');
+									}
+								}, {
+									prompt: 'Enter the new phone number :'
+								});
+							}
+						}, {
+							prompt: 'Enter the phone number id to be modified: '
+						});
+					}
+				}, {
+					prompt: 'Enter the person id to be modified or any key to cancel :'
+				});
+			}
+			
+			var promptSearch = function() {
+				term.push(function(command) {
+					var query = command;
+					if ( ! query.match(/[0-9]{3}/)) {
+						term.error('Error - Invalid search digits, must 3 of numbers.');
+					} else {
+						var pattern = new RegExp(query, 'i');
+						msg = '';
+						for(i=0; i<phonebook.length; i++) {
+							if( ! phonebook[i])
+								continue;
+							var phonesTxt = ''; 
+							if(phonebook[i].phones && phonebook[i].phones[0]) {
+								for(j=0; j < phonebook[i].phones.length; ++j) {
+									if(phonebook[i].phones[j].match(pattern)) {
+										phonesTxt += (' ' + j + ' ' + phonebook[i].phones[j] + '\n');
+									}
+								}
+							}
+							if (phonesTxt !== '') {
+								msg += '['+i+'] ' + phonebook[i].name;
+								msg += new Array(9 - phonebook[i].name.length).join(' '); //padding
+								msg += ' - ';
+								msg += phonesTxt;
+							}
+						}
+						if (msg === '' ) {
+							term.echo('No result.');
+						} else {
+							term.echo(msg);
+						}
+						term.pop();
+					}
+				}, {
+					prompt: 'Enter 3 digits to search: '
+				});
+			}
+			
+			switch(command) {
+				case 'h':
+					help();
+					break;
+				case 'i':
+					promptInsertPhoneNumber();
+					break;
+				case 'd':
+					promptDeletePhoneNumberAndPerson();
+					break;
+				case 'm':
+					promptModifyPhoneNumber();
+					break;
+				case 's':
+					promptSearch();
+					break;
+				default: {
+					term.error('Error - Invalid command.');
+					term.echo('Phonebook - Input your command (h for help)');
+				}
+			}
+        }, {
+            greetings: 'Phonebook - Input your command (h for help)',
+            name: 'js_demo',
+            height: 200,
+            prompt: 'js> '});
+    });
+    </script>
+  </head>
+<body>
+<div id="main"></div>
+</body>
