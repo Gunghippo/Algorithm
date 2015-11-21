@@ -1,0 +1,13 @@
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\bin\Debug\BinaryTreeCalculator.exe.config
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\bin\Debug\BinaryTreeCalculator.exe
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\bin\Debug\BinaryTreeCalculator.pdb
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\obj\Debug\BinaryTreeCalculator.csprojResolveAssemblyReference.cache
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\obj\Debug\BinaryTreeCalculator.BinaryTree.resources
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\obj\Debug\BinaryTreeCalculator.Properties.Resources.resources
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\obj\Debug\BinaryTreeCalculator.csproj.GenerateResource.Cache
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\obj\Debug\BinaryTreeCalculator.exe
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\obj\Debug\BinaryTreeCalculator.pdb
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\bin\Debug\BinaryTreeCalculator.exe.manifest
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\bin\Debug\BinaryTreeCalculator.application
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\obj\Debug\BinaryTreeCalculator.exe.manifest
+C:\Users\vsilaptop\Documents\Visual Studio 2012\Projects\BinaryTreeCalculator\BinaryTreeCalculator\obj\Debug\BinaryTreeCalculator.application
