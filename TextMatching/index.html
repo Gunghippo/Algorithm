@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Text Match</title>
+    <meta name="author" content="Me"/>
+    <meta name="Description" content="Text Match"/>
+    <script src="jcubic-jquery.terminal/js/jquery-1.7.1.min.js"></script>
+    <script src="jcubic-jquery.terminal/js/jquery.mousewheel-min.js"></script>
+    <script src="jcubic-jquery.terminal/js/jquery.terminal-min.js"></script>
+    <link href="jcubic-jquery.terminal/css/jquery.terminal.css" rel="stylesheet"/>
+	<script src="sorter.js"></script>
+	<script src="bmh.js"></script>
+    <script type="text/javascript">
+
+	Array.prototype.max = function() {
+		return Math.max.apply(null, this);
+	};
+
+	Array.prototype.min = function() {
+		return Math.min.apply(null, this);
+	};
+	var data = $.ajax({
+		url: "product.txt",
+		async: false
+	}).responseText.split(/\n/);
+    jQuery(function($, undefined) {
+		var maxResult = 10;
+        $('#main').terminal(function(command, term) {
+			var help = function() {
+				//term.echo('m - modify a max result');
+				term.echo('s - search');
+			}
+			var promptSearch = function() {
+				term.push(function(command) {
+					var query = command;
+					if ( ! query.match(/[0-9a-z -_]/i)) {
+						term.error('Error - Invalid search keywords');
+					} else {
+						var matchResult = [];
+						var keywords = query.split(' ');
+						$.each(data, function(id, productName) {
+							var matchObj = {};
+							var matchPosition = [];
+							$.each(keywords, function(i, keyword) {
+								if(keyword !== '') {
+									var position = boyerMooreSearch(productName.toLowerCase(), keyword.toLowerCase());
+									if(position >= 0) {
+										console.log(position)
+										matchPosition.push(position);
+									}
+																	
+								}
+							});
+							var totalMatch = matchPosition.length;
+							if(totalMatch > 0) {
+								matchResult.push({
+									productName: productName,
+									total: totalMatch,
+									first: matchPosition.min(),
+									minDiff: getMinDiff(matchPosition)
+								});
+							}
+							
+						});
+					
+						if(matchResult.length > 0) {
+							matchResult.sort(fieldSorter(['-total', 'first', 'minDiff']));
+							term.echo('Search Result is:');
+							for(i=0; i < maxResult; i++) {
+								if(matchResult[i])
+									term.echo('- ' + matchResult[i].productName);
+							}
+						}
+						term.echo(matchResult.length + ' Product(s) matched');
+						term.pop();
+					}
+				}, {
+					prompt: 'Product Search - Input your keyword (s): '
+				});
+			}
+			
+			var promptSetMaxResult = function() {
+				term.push(function(command) {
+					var max = command;
+					if(isNaN(max)) {
+						term.error('Invalid number.')
+					} else {
+						maxResult = max;
+						term.echo('max result set to ' + max);
+					}
+					term.pop();
+				}, {
+					prompt: 'Enter Max result: '
+				});
+			}
+			
+			switch(command) {
+				case 'h':
+					help();
+					break;
+				case 'm':
+					promptSetMaxResult();
+					break;
+				case 's':
+					promptSearch();
+					break;
+				default: {
+					term.error('Error - Invalid command.');
+					term.echo('Text Match - Input your command (h for help)');
+				}
+			}
+        }, {
+            greetings: 'Text Match - Input your command (h for help)',
+            name: 'js',
+            height: 400,
+            prompt: 'js> '});
+    });
+    </script>
+  </head>
+<body>
+<div id="main"></div>
+</body>
