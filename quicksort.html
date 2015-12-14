@@ -1,0 +1,100 @@
+<html>
+<head></head>
+
+<body>
+	<div style="margin-top: 56px; padding-left: 50px;">
+		<p style="font-weight: bold; font-size:20px;">Implement Program Quicksort function</p>
+		<p>You can put number and put space ex. 1 5 2 4 71 21 12</p>
+		
+	</div>
+    <div style="font-family: Tahoma; font-size: 16px; padding-left: 50px;">
+        <form>
+            <p>INPUT:</p> 
+            <input id="input_number" value="" style="width: 256px; height: 32px; font-size: 14px;" type="text" />
+            <input type="button" value="Submit" onclick="process()" style="font-size: 15px; padding: 3px 36px;"/>
+            <br >
+            <p>OUTPUT: </p>
+            <input id="output_number" value="" style="width: 256px; height: 32px; font-size: 14px;" type="text" readonly />
+        </form>
+    </div>
+
+
+<script type="text/javascript">
+function swap(items, firstIndex, secondIndex){
+    var temp = items[firstIndex];
+    items[firstIndex] = items[secondIndex];
+    items[secondIndex] = temp;
+}
+
+function partition(items, left, right) {
+
+    var pivot   = items[Math.floor((right + left) / 2)],
+        i       = left,
+        j       = right;
+
+
+    while (i <= j) {
+
+        while (items[i] < pivot) {
+            i++;
+        }
+
+        while (items[j] > pivot) {
+            j--;
+        }
+
+        if (i <= j) {
+            swap(items, i, j);
+            i++;
+            j--;
+        }
+    }
+
+    return i;
+}
+
+function quickSort(items, left, right) {
+
+    var index;
+
+    if (items.length > 1) {
+
+        left = typeof left != 'number' ? 0 : left;
+        right = typeof right != 'number' ? items.length - 1 : right;
+
+        index = partition(items, left, right);
+
+        if (left < index - 1) {
+            quickSort(items, left, index - 1);
+        }
+
+        if (index < right) {
+            quickSort(items, index, right);
+        }
+
+    }
+
+    return items;
+}
+
+function process() {
+	var input = document.getElementById("input_number").value.split(" "); //receive input and convert to array
+
+	if  (input.length === 0 || input.length > 100) { //validate array size
+		alert('invalid input');
+		return;
+	} 
+	
+	var items = input.map(function(item) {
+		return parseInt(item);
+	});
+
+	var output = quickSort(items);
+	document.getElementById("output_number").value = output.join(" ");
+}
+
+
+
+</script>
+</body>
+</html>

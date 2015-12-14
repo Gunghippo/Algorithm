@@ -1,0 +1,63 @@
+<html>
+<head></head>
+<body>
+	<div style="margin-top: 56px; padding-left: 50px;">
+		<p style="font-weight: bold; font-size:20px;">Implement Program Hash function</p>
+		<p>You can put number and put space ex. 5 1 2 55 8 2 105 3 100</p>
+		
+	</div>
+	<div style="font-family: Tahoma; font-size: 16px; padding-left: 50px;">
+		<form>
+			INPUT: <br >
+			<input id="input_number" value="" style="width: 256px; height: 32px; font-size: 14px; margin-top: 10px;" type="text" />
+			<input type="button" value="submit" onclick="process()" style="font-size: 15px; padding: 3px 36px;"/> 
+			<br ><br >
+			OUTPUT: <br >
+			
+			<textarea readonly id="output" style="width: 318px; height: 400px; font-size: 14px; margin-top: 10px;"></textarea>
+		</form>
+	</div>
+</body>
+
+<script type="text/javascript">
+
+	function process() {
+		var tableSize = 50;
+		var input = document.getElementById("input_number").value.split(" "); //receive input and convert to array
+		
+		if  ( input.length === 0 || input.length > 100 ){ //validate array size not over 100
+			alert('invalid input length');
+			return;
+		} 
+		
+		 for(i = 0; i<input.length; i++) {
+			if(input[i] > 1000 || input[i] < 0) { //validate each input must be number between 1 - 1000
+				alert(input[i] + ' is invalid input');
+				return;
+			}
+		}
+		
+		var hashTable = Array(tableSize); //create empty array
+		for(i = 0; i < hashTable.length; i++) {
+			hashTable[i] = []; //create array for store match hash
+		}
+		for(j = 0; j < input.length; j++) {
+			var hashNumber = input[j] % tableSize;
+			hashTable[hashNumber].push(input[j]);
+		}
+		
+		//create report
+		var report = '';
+		for(i = 0; i < hashTable.length; i++) {
+			console.log(hashTable[i])
+			report += i + ':' + hashTable[i].join(' ') + '\n';
+		}
+		console.log(report)
+		document.getElementById("output").value = report;
+	}
+
+</script>
+
+
+</body>
+</html>
