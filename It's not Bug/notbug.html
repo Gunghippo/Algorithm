@@ -1,0 +1,140 @@
+<html>
+<head></head>
+
+<body>
+<script type="text/javascript">
+/* //test
+code = applyPatch(code, input[1]);
+code = applyPatch(code, input[2]);
+code = applyPatch(code, input[1]);
+code = applyPatch(code, input[3]);
+code = applyPatch(code, input[1]);
+code = applyPatch(code, input[2]);
+code = applyPatch(code, input[1]);
+console.log(code)
+*/
+
+//sort object by field with directive
+function fieldSorter(fields){
+    return function (a, b) {
+
+        return fields
+            .map(function (o) {
+                var dir = 1;
+                if (o[0] === '-') {
+                   dir = -1;
+                   o=o.substring(1);
+                }
+                if (a[o] > b[o]) return dir;
+                if (a[o] < b[o]) return -(dir);
+                return 0;
+            })
+            .reduce(function firstNonZeroValue (p,n) {
+                return p ? p : n;
+            }, 0);
+    };
+}
+  function applyPatch(code, patchArr){
+  var codeArr = code.split('');
+  var beforeArr = patchArr[1].split('');
+  var afterArr = patchArr[2].split('');
+  //alert(afterArr);
+  //apply a patch for each line of code
+  var result = [];
+  for(var i=0; i<codeArr.length; i++) {
+    result[i] = 'x';
+    if(beforeArr[i] === '0' && afterArr[i] === '0') {
+      result[i] = codeArr[i];
+    }
+    else if(beforeArr[i] === '0' && afterArr[i] !== '0') {
+      result[i] = afterArr[i];
+    }
+    else if(codeArr[i] === beforeArr[i] && beforeArr[i] === '-') {
+      if(afterArr[i] === '0') {
+        result[i] = codeArr[i];
+      } else {
+        result[i] = afterArr[i];
+      }
+    } else {
+      result[i] = codeArr[i];
+    }
+  }
+  
+  return result.join('');
+}
+
+function applyAllPatch(code, input){
+  var results = [];
+  for(var i=1; i<input.length; i++) {
+    var patchResult = applyPatch(code, input[i]);
+    results.push({
+      patchId: i,
+      patchPatern: input[i][1] + ' ' + input[i][2],
+      totalTime: input[i][0],
+      totalBug: (patchResult.match(/\+/g) || []).length,
+      codeAfter: patchResult
+    });
+  }
+  return results;
+}
+
+var input = [
+  [3, 3],
+  [1, '000', '00-'],
+  [1, '00-', '0-+'],
+  [2, '0--', '-++']
+];
+
+var code = '+++';
+var totalTime = 0;
+var appliedPatches = [];
+var choosePatch;
+
+function main(code, input, totalTime){
+ // alert(code);
+  document.write('code  : ', code, '<br />' );
+
+
+  var patchResults = applyAllPatch(code, input);
+
+  //sort by totalbug, remaining time usage, and patch number
+  patchResults = patchResults.sort(fieldSorter(['totalBug', 'totalTime', 'patchId']));
+  //choose best patch
+  
+  for(var i=0; i< patchResults.length; i++) {
+    //ignore patch that fix nothing 
+    //and must not get same result twice //avoid infinity loop
+    if(code === patchResults[i].codeAfter || appliedPatches.indexOf(patchResults[i].codeAfter) > -1) {
+      continue;
+    } else { //choose first found patch , lowest bugs, lowest time
+      totalTime += patchResults[i].totalTime;
+      code = patchResults[i].codeAfter;
+      choosePatch = patchResults[i].patchId;
+
+      //alert(patchResults[i].codeAfter);
+      appliedPatches.push(code);
+      document.write('patch : ', patchResults[i].patchPatern, '<br />' );
+      document.write('result: ', patchResults[i].codeAfter, '<br />', '<br />'  );
+
+      break;
+    }
+  }
+
+  if( ! choosePatch) {
+    document.write('End can not patch', '<br />' );
+    
+  } else if(code === '---') {
+
+    document.write('finish in  ', totalTime, ' second', '<br />' );
+  }
+  else {
+    main(code, input, totalTime)
+  }
+}
+
+main('+++', input, totalTime);
+
+</script>
+
+</body>
+</html>
